@@ -1,0 +1,22 @@
+python3 main.py \
+    --project-name text2sql \
+    --dataset-path 100suping/ko-bird-sql-schema \
+    --model-type qwen-2.5 \
+    --model-name unsloth/Qwen2.5-Coder-32B-Instruct \
+    --quant-bit 8 \
+    --r 16 \
+    --lora-alpha 16 \
+    --lora-dropout 0 \
+    --max-seq-length 1400 \
+    --output-dir outputs \
+    --save-steps 10 \
+    --logging-steps 2 \
+    --epochs 1 \
+    --batch-size 1 \
+    --warmup-steps 4 \
+    --lr 2e-4 \
+    --gradient-accumulation-steps 1 \
+    --verbose false \
+    --report-to none \
+    --seed 42 \
+    --test-run true

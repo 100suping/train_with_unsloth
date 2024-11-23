@@ -1,0 +1,6 @@
+pip==24.3.1
+python-dotenv==1.0.1
+setuptools==65.5.0
+torchaudio==2.5.1+cu121
+torchvision==0.20.1+cu121
+unsloth==2024.11.9
