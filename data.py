@@ -1,6 +1,6 @@
 from huggingface_hub import login
 import os
-from datasets import load_dataset, Dataset
+from datasets import load_dataset, Dataset, concatenate_datasets
 
 
 def get_conversation_data(examples):
@@ -40,18 +40,26 @@ def get_tokenized_length(examples, tokenizer):
 def get_dataset(config, tokenizer):
     login(token=os.getenv("HF_TOKEN"))
     kobird_dataset = load_dataset(config.dataset_path, split="train")
-    
+    won75 = load_dataset("won75/text_to_sql_ko", split="train")
+
+    won75_selected = won75.select_columns(['TEXT', "MySQL", "Schema"])
+    won75_selected = won75_selected.rename_column("TEXT", "question")
+    won75_selected = won75_selected.rename_column("MySQL", "SQL")
+    won75 = won75_selected.rename_column("Schema", "schema")
+
     # config의 test_run 값에 따라서 데이터를 얼마나 불러올지 결정
     if config.test_run:
-        kobird_dataset = kobird_dataset.select(range(20))
+        kobird_dataset = kobird_dataset.select(range(100))
+        won75 = won75.select(range(100))
 
-
-    kobird_dataset = kobird_dataset.map(lambda x : get_conversation_data(x), batched=True)
-    kobird_dataset = kobird_dataset.map(lambda x : formatting_prompts_func(x, tokenizer), batched=True)
-    kobird_dataset = kobird_dataset.map(lambda x : get_tokenized_length(x, tokenizer), batched=True)
+    combined_dataset = concatenate_datasets([kobird_dataset, won75])
+    combined_dataset = combined_dataset.map(lambda x : get_conversation_data(x), batched=True)
+    combined_dataset = combined_dataset.map(lambda x : formatting_prompts_func(x, tokenizer), batched=True)
+    combined_dataset = combined_dataset.map(lambda x : get_tokenized_length(x, tokenizer), batched=True)
     
-    kobird_df = kobird_dataset.to_pandas()
-    cleaned_df = kobird_df[kobird_df['length'] < config.max_seq_length].reset_index(drop=True)
+    
+    df = combined_dataset.to_pandas()
+    cleaned_df = df[df['length'] < config.max_seq_length].reset_index(drop=True)
     dataset = Dataset.from_pandas(cleaned_df).shuffle(config.seed)
     
     return dataset

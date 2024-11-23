@@ -2,7 +2,7 @@ import argparse
 import os
 from dotenv import load_dotenv
 from model import do_it_tuning
-
+from utils import str2bool
 
 def get_config():
     """argparse를 이용해 사용자에게 하이퍼 파라미터를 입력 받는 함수입니다."""
@@ -15,6 +15,12 @@ def get_config():
     parser.add_argument(
         "--project-name",
         default="text2sql",
+        type=str,
+    )
+
+    parser.add_argument(
+        "--run-name",
+        default="test",
         type=str,
     )
 
@@ -119,7 +125,7 @@ def get_config():
     parser.add_argument(
         "--verbose",
         default=False,
-        type=bool,
+        type=str2bool,
     )
 
     parser.add_argument(
@@ -138,7 +144,7 @@ def get_config():
     parser.add_argument(
         "--test-run",
         default=True,
-        type=bool,
+        type=str2bool,
     )
 
     config = parser.parse_args()
@@ -148,5 +154,8 @@ def get_config():
 
 if __name__ == "__main__":
     config = get_config()
+
     load_dotenv()
+    os.environ["WANDB_PROJECT"] = f"{config.project_name}"
+    
     do_it_tuning(config)

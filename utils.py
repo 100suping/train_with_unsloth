@@ -1,6 +1,6 @@
 from torch.cuda import get_device_properties, max_memory_reserved
 from transformers import BitsAndBytesConfig
-
+import argparse
 
 def byte_to_mega(byte):
     return round(byte / 1024 / 1024 / 1024, 3)
@@ -26,3 +26,13 @@ def get_bnb_config(bit=8):
     else:
         print(f"You put {bit} bit in argument.\nWhatever the number you put in, if it is not 8 then 4bit config would be returned.")
         return BitsAndBytesConfig(load_in_4bit=True)
+
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')

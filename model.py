@@ -26,6 +26,10 @@ def get_model_and_tokenizer(config):
             dtype=None,
             # max_seq_length=2048,
         )
+
+    if config.model_name == "unsloth/Qwen2.5-Coder-32B-Instruct-bnb-4bit" or config.model_name == "unsloth/Qwen2.5-Coder-32B-Instruct":
+        model.config.max_window_layers=64
+
     if config.verbose:
         
         print(model)
@@ -52,6 +56,9 @@ def reconstruct_model(config, model):
         use_rslora = False,  # We support rank stabilized LoRA
         loftq_config = None, # And LoftQ
     )
+
+    model.print_trainable_parameters()
+
     return model
 
 def get_trainer(config, model, tokenizer, dataset):
@@ -83,6 +90,7 @@ def get_trainer(config, model, tokenizer, dataset):
             save_strategy="steps",
             save_steps=config.save_steps,
             report_to = config.report_to, # Use this for WandB etc
+            run_name=config.run_name,
         ),
     )
     
